@@ -1,4 +1,15 @@
+default-group: local
 groups:
+  local:
+    generators:
+      - name: fernapi/fern-go-sdk
+        version: 0.7.0
+        config:
+          module:
+            path: github.com/vellum-ai/vellum-client-go
+        output:
+          location: local-file-system
+          path: ../generated/github.com/vellum-ai/vellum-client-go
   staging:
     generators:
       - name: fernapi/fern-typescript-sdk
