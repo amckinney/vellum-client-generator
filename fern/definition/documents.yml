@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  root: __package__.yml
+
+service:
+  auth: false
+  base-path: ""
+  endpoints:
+    list:
+      path: /v1/documents
+      method: GET
+      auth: true
+      docs: Used to list documents. Optionally filter on supported fields.
+      request:
+        name: DocumentsListRequest
+        query-parameters:
+          document_index_id:
+            docs: >-
+              Filter down to only those documents that are included in the
+              specified index. You may provide either the Vellum-generated ID or
+              the unique name of the index specified upon initial creation.
+            type: optional<string>
+          limit:
+            docs: Number of results to return per page.
+            type: optional<integer>
+          offset:
+            docs: The initial index from which to return the results.
+            type: optional<integer>
+          ordering:
+            docs: Which field to use when ordering the results.
+            type: optional<string>
+      response:
+        docs: ""
+        type: root.PaginatedSlimDocumentList
+      url: Default
+      availability: generally-available
+      errors: []
+
+    partialUpdate:
+      path: /v1/documents/{id}
+      method: PATCH
+      auth: true
+      docs: >-
+        Update a Document, keying off of its Vellum-generated ID. Particularly
+        useful for updating its metadata.
+      path-parameters:
+        id:
+          docs: A UUID string identifying this document.
+          type: string
+      request:
+        name: PatchedDocumentUpdateRequest
+        body:
+          properties:
+            label:
+              docs: >-
+                A human-readable label for the document. Defaults to the
+                originally uploaded file's file name.
+              type: optional<string>
+            status:
+              docs: |-
+                The current status of the document
+                * `ACTIVE` - Active
+              type: optional<root.DocumentStatus>
+            metadata:
+              docs: >-
+                A JSON object containing any metadata associated with the
+                document that you'd like to filter upon later.
+              type: optional<map<string, unknown>>
+      response:
+        docs: ""
+        type: root.DocumentRead
+      url: Default
+      availability: pre-release
+      errors: []
+
+    destroy:
+      path: /v1/documents/{id}
+      method: DELETE
+      auth: true
+      path-parameters:
+        id:
+          docs: A UUID string identifying this document.
+          type: string
+      url: Default
+      errors: []
+
+    upload:
+      path: /v1/upload-document
+      method: POST
+      auth: true
+      docs: |-
+        Upload a document to be indexed and used for search.
+        **Note:** Uses a base url of `https://documents.vellum.ai`.
+      request:
+        name: UploadDocumentBodyRequest
+        body:
+          properties:
+            add_to_index_names:
+              docs: >-
+                Optionally include the names of all indexes that you'd like this
+                document to be included in
+              type: optional<list<string>>
+            external_id:
+              docs: >-
+                Optionally include an external ID for this document. This is
+                useful if you want to re-upload the same document later when its
+                contents change and would like it to be re-indexed.
+              type: optional<string>
+            label:
+              type: string
+              docs: A human-friendly name for this document. Typically the filename.
+            contents: file
+            keywords:
+              docs: >-
+                Optionally include a list of keywords that'll be associated with
+                this document. Used when performing keyword searches.
+              type: optional<list<string>>
+            metadata:
+              docs: >-
+                A stringified JSON object containing any metadata associated
+                with the document that you'd like to filter upon later.
+              type: optional<string>
+      response:
+        docs: ""
+        type: root.UploadDocumentResponse
+      url: Documents
+      availability: generally-available
+      errors:
+        - root.BadRequestError
+        - root.NotFoundError
+        - root.InternalServerError

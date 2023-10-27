@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  root: __package__.yml
+
+service:
+  auth: false
+  base-path: ""
+  endpoints:
+    retrieve:
+      path: /v1/model-versions/{id}
+      method: GET
+      auth: true
+      docs: Used to retrieve a model version given its ID.
+      path-parameters:
+        id:
+          docs: A UUID string identifying this model version.
+          type: string
+      response:
+        docs: ""
+        type: root.ModelVersionRead
+      url: Default
+      availability: pre-release
+      errors: []
+
+    model_version_compile_prompt:
+      path: /v1/model-versions/{id}/compile-prompt
+      method: POST
+      auth: true
+      docs: >-
+        Compiles the prompt backing the model version using the provided input
+        values.
+      path-parameters:
+        id:
+          docs: A UUID string identifying this model version.
+          type: string
+      request:
+        name: ModelVersionCompilePromptRequestRequest
+        body:
+          properties:
+            input_values:
+              docs: >-
+                Key/value pairs for each variable found within the model
+                version's prompt template.
+              type: map<string, unknown>
+      response:
+        docs: ""
+        type: root.ModelVersionCompilePromptResponse
+      url: Default
+      availability: pre-release
+      errors: []

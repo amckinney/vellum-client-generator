@@ -1,0 +1,2122 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+types:
+  ApiNodeResult:
+    properties:
+      data:
+        type: ApiNodeResultData
+
+  ApiNodeResultData:
+    properties:
+      text_output_id: string
+      text:
+        type: optional<string>
+      json_output_id: string
+      json:
+        type: optional<map<string, unknown>>
+      status_code_output_id: string
+      status_code: integer
+
+  BlockTypeEnum:
+    docs: |-
+      * `CHAT_MESSAGE` - CHAT_MESSAGE
+      * `CHAT_HISTORY` - CHAT_HISTORY
+      * `JINJA` - JINJA
+      * `FUNCTION_DEFINITION` - FUNCTION_DEFINITION
+    enum:
+      - name: CHAT_MESSAGE
+        value: CHAT_MESSAGE
+      - name: CHAT_HISTORY
+        value: CHAT_HISTORY
+      - name: JINJA
+        value: JINJA
+      - name: FUNCTION_DEFINITION
+        value: FUNCTION_DEFINITION
+
+  ChatMessage:
+    properties:
+      text: string
+      role:
+        type: ChatMessageRole
+
+  ChatMessageRequest:
+    properties:
+      text: string
+      role:
+        type: ChatMessageRole
+
+  ChatMessageRole:
+    docs: |-
+      * `SYSTEM` - System
+      * `ASSISTANT` - Assistant
+      * `USER` - User
+      * `FUNCTION` - Function
+    enum:
+      - name: SYSTEM
+        value: SYSTEM
+      - name: ASSISTANT
+        value: ASSISTANT
+      - name: USER
+        value: USER
+      - name: FUNCTION
+        value: FUNCTION
+
+  ConditionalNodeResult:
+    properties:
+      data:
+        type: ConditionalNodeResultData
+
+  ConditionalNodeResultData:
+    properties:
+      source_handle_id:
+        type: optional<string>
+
+  DeploymentRead:
+    properties:
+      id: string
+      created: datetime
+      label:
+        type: string
+        docs: A human-readable label for the deployment
+      name:
+        type: string
+        docs: A name that uniquely identifies this deployment within its workspace
+      status:
+        docs: |-
+          The current status of the deployment
+          * `ACTIVE` - Active
+          * `INACTIVE` - Inactive
+          * `ARCHIVED` - Archived
+        type: optional<DeploymentStatus>
+      environment:
+        docs: |-
+          The environment this deployment is used in
+          * `DEVELOPMENT` - Development
+          * `STAGING` - Staging
+          * `PRODUCTION` - Production
+        type: optional<EnvironmentEnum>
+      active_model_version_ids:
+        type: list<string>
+      last_deployed_on: datetime
+      input_variables:
+        type: list<VellumVariable>
+
+  DeploymentStatus:
+    docs: |-
+      * `ACTIVE` - Active
+      * `INACTIVE` - Inactive
+      * `ARCHIVED` - Archived
+    enum:
+      - name: ACTIVE
+        value: ACTIVE
+      - name: INACTIVE
+        value: INACTIVE
+      - name: ARCHIVED
+        value: ARCHIVED
+
+  DocumentDocumentToDocumentIndex:
+    properties:
+      id:
+        type: string
+        docs: Vellum-generated ID that uniquely identifies this link.
+      document_index_id:
+        type: string
+        docs: >-
+          Vellum-generated ID that uniquely identifies the index this document
+          is included in.
+      indexing_state:
+        docs: >-
+          An enum value representing where this document is along its indexing
+          lifecycle for this index.
+          * `AWAITING_PROCESSING` - Awaiting Processing
+          * `QUEUED` - Queued
+          * `INDEXING` - Indexing
+          * `INDEXED` - Indexed
+          * `FAILED` - Failed
+        type: optional<IndexingStateEnum>
+
+  DocumentIndexRead:
+    properties:
+      id: string
+      created: datetime
+      label:
+        type: string
+        docs: A human-readable label for the document index
+      name:
+        type: string
+        docs: A name that uniquely identifies this index within its workspace
+      status:
+        docs: |-
+          The current status of the document index
+          * `ACTIVE` - Active
+          * `ARCHIVED` - Archived
+        type: optional<DocumentIndexStatus>
+      environment:
+        docs: |-
+          The environment this document index is used in
+          * `DEVELOPMENT` - Development
+          * `STAGING` - Staging
+          * `PRODUCTION` - Production
+        type: optional<EnvironmentEnum>
+      indexing_config:
+        docs: Configuration representing how documents should be indexed
+        type: map<string, unknown>
+
+  DocumentIndexStatus:
+    docs: |-
+      * `ACTIVE` - Active
+      * `ARCHIVED` - Archived
+    enum:
+      - name: ACTIVE
+        value: ACTIVE
+      - name: ARCHIVED
+        value: ARCHIVED
+
+  DocumentRead:
+    properties:
+      id: string
+      external_id:
+        docs: The unique id of this document as it exists in the user's system.
+        type: optional<string>
+      last_uploaded_at: datetime
+      label:
+        type: string
+        docs: >-
+          A human-readable label for the document. Defaults to the originally
+          uploaded file's file name.
+      processing_state:
+        docs: |-
+          The current processing state of the document
+          * `QUEUED` - Queued
+          * `PROCESSING` - Processing
+          * `PROCESSED` - Processed
+          * `FAILED` - Failed
+        type: optional<ProcessingStateEnum>
+      status:
+        docs: |-
+          The current status of the document
+          * `ACTIVE` - Active
+        type: optional<DocumentStatus>
+      original_file_url:
+        type: optional<string>
+      processed_file_url:
+        type: optional<string>
+      document_to_document_indexes:
+        type: list<DocumentDocumentToDocumentIndex>
+      metadata:
+        docs: >-
+          A previously supplied JSON object containing metadata that can be
+          filtered on when searching.
+        type: optional<map<string, unknown>>
+
+  DocumentStatus: literal<"ACTIVE">
+
+  EnrichedNormalizedCompletion:
+    properties:
+      id:
+        type: string
+        docs: The Vellum-generated ID of the completion.
+      external_id:
+        docs: >-
+          The external ID that was originally provided along with the generation
+          request, which uniquely identifies this generation in an external
+          system.
+        type: optional<string>
+      text:
+        type: string
+        docs: The text generated by the LLM.
+      finish_reason:
+        docs: |-
+          The reason the generation finished.
+          * `LENGTH` - LENGTH
+          * `STOP` - STOP
+          * `UNKNOWN` - UNKNOWN
+        type: optional<FinishReasonEnum>
+      logprobs:
+        docs: >-
+          The logprobs of the completion. Only present if specified in the
+          original request options.
+        type: optional<NormalizedLogProbs>
+      model_version_id:
+        type: string
+        docs: The ID of the model version used to generate this completion.
+      prompt_version_id:
+        type: optional<string>
+      type:
+        type: optional<VellumVariableType>
+
+  EnvironmentEnum:
+    docs: |-
+      * `DEVELOPMENT` - Development
+      * `STAGING` - Staging
+      * `PRODUCTION` - Production
+    enum:
+      - name: DEVELOPMENT
+        value: DEVELOPMENT
+      - name: STAGING
+        value: STAGING
+      - name: PRODUCTION
+        value: PRODUCTION
+
+  EvaluationParams:
+    properties:
+      target:
+        docs: >-
+          The target value to compare the LLM output against. Typically what you
+          expect or desire the LLM output to be.
+        type: optional<string>
+
+  EvaluationParamsRequest:
+    properties:
+      target:
+        docs: >-
+          The target value to compare the LLM output against. Typically what you
+          expect or desire the LLM output to be.
+        type: optional<string>
+
+  ExecuteWorkflowStreamErrorResponse:
+    properties:
+      detail:
+        type: string
+        docs: Details about why the request failed.
+
+  FinishReasonEnum:
+    docs: |-
+      * `LENGTH` - LENGTH
+      * `STOP` - STOP
+      * `UNKNOWN` - UNKNOWN
+    enum:
+      - name: LENGTH
+        value: LENGTH
+      - name: STOP
+        value: STOP
+      - name: UNKNOWN
+        value: UNKNOWN
+
+  GenerateErrorResponse:
+    properties:
+      detail:
+        type: string
+        docs: Details about why the request failed.
+
+  GenerateOptionsRequest:
+    properties:
+      logprobs:
+        docs: |-
+          Which logprobs to include, if any. Defaults to NONE.
+          * `ALL` - ALL
+          * `NONE` - NONE
+        type: optional<LogprobsEnum>
+
+  GenerateRequest:
+    properties:
+      input_values:
+        docs: >-
+          Key/value pairs for each template variable defined in the deployment's
+          prompt.
+        type: map<string, unknown>
+      chat_history:
+        docs: >-
+          Optionally provide a list of chat messages that'll be used in place of
+          the special {$chat_history} variable, if included in the prompt.
+        type: optional<list<ChatMessageRequest>>
+      external_ids:
+        docs: >-
+          Optionally include a unique identifier for each generation, as
+          represented outside of Vellum. Note that this should generally be a
+          list of length one.
+        type: optional<list<string>>
+
+  GenerateResponse:
+    properties:
+      results:
+        docs: The results of each generation request.
+        type: list<GenerateResult>
+
+  GenerateResult:
+    properties:
+      data:
+        docs: >-
+          An object containing the resulting generation. This key will be absent
+          if the LLM provider experienced an error.
+        type: optional<GenerateResultData>
+      error:
+        docs: >-
+          An object containing details about the error that occurred. This key
+          will be absent if the LLM provider did not experience an error.
+        type: optional<GenerateResultError>
+
+  GenerateResultData:
+    properties:
+      completions:
+        docs: >-
+          The generated completions. This will generally be a list of length
+          one.
+        type: list<EnrichedNormalizedCompletion>
+
+  GenerateResultError:
+    properties:
+      message:
+        type: string
+        docs: The error message returned by the LLM provider.
+
+  GenerateStreamResponse:
+    properties:
+      delta:
+        type: GenerateStreamResult
+
+  GenerateStreamResult:
+    properties:
+      request_index: integer
+      data:
+        type: optional<GenerateStreamResultData>
+      error:
+        type: optional<GenerateResultError>
+
+  GenerateStreamResultData:
+    properties:
+      completion_index: integer
+      completion:
+        type: EnrichedNormalizedCompletion
+
+  IndexingStateEnum:
+    docs: |-
+      * `AWAITING_PROCESSING` - Awaiting Processing
+      * `QUEUED` - Queued
+      * `INDEXING` - Indexing
+      * `INDEXED` - Indexed
+      * `FAILED` - Failed
+    enum:
+      - name: AWAITING_PROCESSING
+        value: AWAITING_PROCESSING
+      - name: QUEUED
+        value: QUEUED
+      - name: INDEXING
+        value: INDEXING
+      - name: INDEXED
+        value: INDEXED
+      - name: FAILED
+        value: FAILED
+
+  LogicalOperator:
+    docs: |-
+      * `=` - EQUALS
+      * `!=` - DOES_NOT_EQUAL
+      * `<` - LESS_THAN
+      * `>` - GREATER_THAN
+      * `<=` - LESS_THAN_OR_EQUAL_TO
+      * `>=` - GREATER_THAN_OR_EQUAL_TO
+      * `contains` - CONTAINS
+      * `beginsWith` - BEGINS_WITH
+      * `endsWith` - ENDS_WITH
+      * `doesNotContain` - DOES_NOT_CONTAIN
+      * `doesNotBeginWith` - DOES_NOT_BEGIN_WITH
+      * `doesNotEndWith` - DOES_NOT_END_WITH
+      * `null` - NULL
+      * `notNull` - NOT_NULL
+      * `in` - IN
+      * `notIn` - NOT_IN
+      * `between` - BETWEEN
+      * `notBetween` - NOT_BETWEEN
+    enum:
+      - name: EQUALS
+        value: "="
+        docs: Equals
+      - name: DOES_NOT_EQUAL
+        value: "!="
+        docs: Does not equal
+      - name: LESS_THAN
+        value: <
+        docs: Less than
+      - name: GREATER_THAN
+        value: ">"
+        docs: Greater than
+      - name: LESS_THAN_OR_EQUAL_TO
+        value: <=
+        docs: Less than or equal to
+      - name: GREATER_THAN_OR_EQUAL_TO
+        value: ">="
+        docs: Greater than or equal to
+      - name: CONTAINS
+        value: contains
+        docs: Contains
+      - name: BEGINS_WITH
+        value: beginsWith
+        docs: Begins with
+      - name: ENDS_WITH
+        value: endsWith
+        docs: Ends with
+      - name: DOES_NOT_CONTAIN
+        value: doesNotContain
+        docs: Does not contain
+      - name: DOES_NOT_BEGIN_WITH
+        value: doesNotBeginWith
+        docs: Does not begin with
+      - name: DOES_NOT_END_WITH
+        value: doesNotEndWith
+        docs: Does not end with
+      - name: "NULL"
+        value: "null"
+        docs: "Null"
+      - name: NOT_NULL
+        value: notNull
+        docs: Not null
+      - name: IN
+        value: in
+        docs: In
+      - name: NOT_IN
+        value: notIn
+        docs: Not in
+      - name: BETWEEN
+        value: between
+        docs: Between
+      - name: NOT_BETWEEN
+        value: notBetween
+        docs: Not between
+
+  LogprobsEnum:
+    docs: |-
+      * `ALL` - ALL
+      * `NONE` - NONE
+    enum:
+      - name: ALL
+        value: ALL
+      - name: NONE
+        value: NONE
+
+  MetadataFilterConfigRequest:
+    properties:
+      combinator:
+        type: optional<MetadataFilterRuleCombinator>
+      negated:
+        type: optional<boolean>
+      rules:
+        type: optional<list<MetadataFilterRuleRequest>>
+      field:
+        type: optional<string>
+      operator:
+        type: optional<LogicalOperator>
+      value:
+        type: optional<string>
+
+  MetadataFilterRuleCombinator:
+    docs: |-
+      * `and` - AND
+      * `or` - OR
+    enum:
+      - name: and
+        value: and
+      - name: or
+        value: or
+
+  MetadataFilterRuleRequest:
+    properties:
+      combinator:
+        type: optional<MetadataFilterRuleCombinator>
+      negated:
+        type: optional<boolean>
+      rules:
+        type: optional<list<MetadataFilterRuleRequest>>
+      field:
+        type: optional<string>
+      operator:
+        type: optional<LogicalOperator>
+      value:
+        type: optional<string>
+
+  ModelVersionBuildConfig:
+    properties:
+      base_model:
+        type: string
+        docs: >-
+          The name of the base model used to create this model version, as
+          identified by the LLM provider.
+      sandbox_snapshot:
+        docs: >-
+          Information about the sandbox snapshot that was used to create this
+          model version, if applicable.
+        type: optional<ModelVersionSandboxSnapshot>
+      prompt_version_id:
+        type: optional<string>
+
+  ModelVersionCompilePromptResponse:
+    properties:
+      prompt:
+        type: ModelVersionCompiledPrompt
+        docs: Information about the compiled prompt.
+
+  ModelVersionCompiledPrompt:
+    properties:
+      text:
+        type: string
+        docs: >-
+          The fully compiled prompt in normalized ChatML syntax after all
+          variable substitutions and templating functions are applied.
+      num_tokens:
+        type: integer
+        docs: The approximate number of tokens used by the compiled prompt.
+
+  ModelVersionExecConfig:
+    properties:
+      parameters:
+        type: ModelVersionExecConfigParameters
+        docs: >-
+          The generation parameters that are passed to the LLM provider at
+          runtime.
+      input_variables:
+        docs: Input variables specified in the prompt template.
+        type: list<VellumVariable>
+      prompt_template:
+        docs: The template used to generate prompts for this model version.
+        type: optional<string>
+      prompt_block_data:
+        type: optional<PromptTemplateBlockData>
+      prompt_syntax_version:
+        type: optional<integer>
+
+  ModelVersionExecConfigParameters:
+    properties:
+      temperature:
+        type: optional<double>
+      max_tokens:
+        type: optional<integer>
+      top_p: double
+      frequency_penalty: double
+      presence_penalty: double
+      logit_bias:
+        type: optional<map<string, optional<double>>>
+      stop:
+        type: optional<list<string>>
+      top_k:
+        type: optional<double>
+
+  ModelVersionRead:
+    properties:
+      id:
+        type: string
+        docs: Vellum-generated ID that uniquely identifies this model version.
+      created:
+        type: datetime
+        docs: Timestamp of when this model version was created.
+      label:
+        type: string
+        docs: Human-friendly name for this model version.
+      provider:
+        type: ProviderEnum
+        docs: |-
+          Which LLM provider this model version is associated with.
+          * `ANTHROPIC` - Anthropic
+          * `COHERE` - Cohere
+          * `GOOGLE` - Google
+          * `HOSTED` - Hosted
+          * `MOSAICML` - MosaicML
+          * `OPENAI` - OpenAI
+          * `HUGGINGFACE` - HuggingFace
+          * `MYSTIC` - Mystic
+          * `PYQ` - Pyq
+      external_id:
+        type: string
+        docs: >-
+          The unique id of this model version as it exists in the above
+          provider's system.
+      build_config:
+        type: ModelVersionBuildConfig
+        docs: Configuration used to build this model version.
+      exec_config:
+        type: ModelVersionExecConfig
+        docs: Configuration used to execute this model version.
+      status:
+        type: optional<ModelVersionReadStatusEnum>
+
+  ModelVersionReadStatusEnum:
+    docs: |-
+      * `CREATING` - Creating
+      * `READY` - Ready
+      * `CREATION_FAILED` - Creation Failed
+      * `DISABLED` - Disabled
+    enum:
+      - name: CREATING
+        value: CREATING
+      - name: READY
+        value: READY
+      - name: CREATION_FAILED
+        value: CREATION_FAILED
+      - name: DISABLED
+        value: DISABLED
+
+  ModelVersionSandboxSnapshot:
+    properties:
+      id:
+        type: string
+        docs: The ID of the sandbox snapshot.
+      prompt_index:
+        docs: The index of the prompt in the sandbox snapshot.
+        type: optional<integer>
+      prompt_id:
+        docs: The id of the prompt in the sandbox snapshot.
+        type: optional<string>
+      sandbox_id:
+        type: optional<string>
+
+  NodeInputCompiledChatHistoryValue:
+    properties:
+      node_input_id: string
+      key: string
+      value:
+        type: optional<list<ChatMessage>>
+
+  NodeInputCompiledErrorValue:
+    properties:
+      node_input_id: string
+      key: string
+      value:
+        type: optional<VellumError>
+
+  NodeInputCompiledJsonValue:
+    properties:
+      node_input_id: string
+      key: string
+      value:
+        type: optional<map<string, unknown>>
+
+  NodeInputCompiledNumberValue:
+    properties:
+      node_input_id: string
+      key: string
+      value:
+        type: optional<integer>
+
+  NodeInputCompiledSearchResultsValue:
+    properties:
+      node_input_id: string
+      key: string
+      value:
+        type: optional<list<SearchResult>>
+
+  NodeInputCompiledStringValue:
+    properties:
+      node_input_id: string
+      key: string
+      value:
+        type: optional<string>
+
+  NodeInputVariableCompiledValue:
+    discriminant: type
+    base-properties: {}
+    union:
+      STRING:
+        type: NodeInputCompiledStringValue
+      NUMBER:
+        type: NodeInputCompiledNumberValue
+      JSON:
+        type: NodeInputCompiledJsonValue
+      CHAT_HISTORY:
+        type: NodeInputCompiledChatHistoryValue
+      SEARCH_RESULTS:
+        type: NodeInputCompiledSearchResultsValue
+      ERROR:
+        type: NodeInputCompiledErrorValue
+
+  NormalizedLogProbs:
+    properties:
+      tokens:
+        type: list<NormalizedTokenLogProbs>
+      likelihood:
+        type: optional<double>
+
+  NormalizedTokenLogProbs:
+    properties:
+      token: string
+      logprob:
+        type: optional<double>
+      top_logprobs:
+        type: optional<map<string, optional<double>>>
+      text_offset: integer
+
+  PaginatedSlimDocumentList:
+    properties:
+      count:
+        type: optional<integer>
+      next:
+        type: optional<string>
+      previous:
+        type: optional<string>
+      results:
+        type: optional<list<SlimDocument>>
+
+  ProcessingFailureReasonEnum:
+    docs: |-
+      * `EXCEEDED_CHARACTER_LIMIT` - Exceeded Character Limit
+      * `INVALID_FILE` - Invalid File
+    enum:
+      - name: EXCEEDED_CHARACTER_LIMIT
+        value: EXCEEDED_CHARACTER_LIMIT
+      - name: INVALID_FILE
+        value: INVALID_FILE
+
+  ProcessingStateEnum:
+    docs: |-
+      * `QUEUED` - Queued
+      * `PROCESSING` - Processing
+      * `PROCESSED` - Processed
+      * `FAILED` - Failed
+    enum:
+      - name: QUEUED
+        value: QUEUED
+      - name: PROCESSING
+        value: PROCESSING
+      - name: PROCESSED
+        value: PROCESSED
+      - name: FAILED
+        value: FAILED
+
+  PromptNodeResult:
+    properties:
+      data:
+        type: PromptNodeResultData
+
+  PromptNodeResultData:
+    properties:
+      output_id: string
+      text:
+        type: optional<string>
+      delta:
+        type: optional<string>
+
+  PromptTemplateBlock:
+    properties:
+      id: string
+      block_type:
+        type: BlockTypeEnum
+      properties:
+        type: PromptTemplateBlockProperties
+
+  PromptTemplateBlockData:
+    properties:
+      version: integer
+      blocks:
+        type: list<PromptTemplateBlock>
+
+  PromptTemplateBlockDataRequest:
+    properties:
+      version: integer
+      blocks:
+        type: list<PromptTemplateBlockRequest>
+
+  PromptTemplateBlockProperties:
+    properties:
+      chat_role:
+        type: optional<ChatMessageRole>
+      chat_message_unterminated:
+        type: optional<boolean>
+      template:
+        type: optional<string>
+      template_type:
+        type: optional<VellumVariableType>
+      function_name:
+        type: optional<string>
+      function_description:
+        type: optional<string>
+      function_parameters:
+        type: optional<map<string, unknown>>
+      function_forced:
+        type: optional<boolean>
+      blocks:
+        type: optional<list<PromptTemplateBlock>>
+
+  PromptTemplateBlockPropertiesRequest:
+    properties:
+      chat_role:
+        type: optional<ChatMessageRole>
+      chat_message_unterminated:
+        type: optional<boolean>
+      template:
+        type: optional<string>
+      template_type:
+        type: optional<VellumVariableType>
+      function_name:
+        type: optional<string>
+      function_description:
+        type: optional<string>
+      function_parameters:
+        type: optional<map<string, unknown>>
+      function_forced:
+        type: optional<boolean>
+      blocks:
+        type: optional<list<PromptTemplateBlockRequest>>
+
+  PromptTemplateBlockRequest:
+    properties:
+      id: string
+      block_type:
+        type: BlockTypeEnum
+      properties:
+        type: PromptTemplateBlockPropertiesRequest
+
+  ProviderEnum:
+    docs: |-
+      * `ANTHROPIC` - Anthropic
+      * `COHERE` - Cohere
+      * `GOOGLE` - Google
+      * `HOSTED` - Hosted
+      * `MOSAICML` - MosaicML
+      * `OPENAI` - OpenAI
+      * `HUGGINGFACE` - HuggingFace
+      * `MYSTIC` - Mystic
+      * `PYQ` - Pyq
+    enum:
+      - name: ANTHROPIC
+        value: ANTHROPIC
+      - name: COHERE
+        value: COHERE
+      - name: GOOGLE
+        value: GOOGLE
+      - name: HOSTED
+        value: HOSTED
+      - name: MOSAICML
+        value: MOSAICML
+      - name: OPENAI
+        value: OPENAI
+      - name: HUGGINGFACE
+        value: HUGGINGFACE
+      - name: MYSTIC
+        value: MYSTIC
+      - name: PYQ
+        value: PYQ
+
+  RegisterPromptErrorResponse:
+    properties:
+      detail:
+        type: string
+        docs: Details about why the request failed.
+
+  RegisterPromptModelParametersRequest:
+    properties:
+      temperature: double
+      max_tokens: integer
+      stop:
+        type: optional<list<string>>
+      top_p: double
+      top_k:
+        type: optional<double>
+      frequency_penalty: double
+      presence_penalty: double
+      logit_bias:
+        type: optional<map<string, optional<double>>>
+
+  RegisterPromptPrompt:
+    properties:
+      id:
+        type: string
+        docs: The ID of the generated prompt.
+      label:
+        type: string
+        docs: A human-friendly label for the generated prompt.
+
+  RegisterPromptPromptInfoRequest:
+    properties:
+      prompt_syntax_version:
+        type: optional<integer>
+      prompt_block_data:
+        type: PromptTemplateBlockDataRequest
+      input_variables:
+        docs: The input variables specified in the prompt template.
+        type: list<RegisteredPromptInputVariableRequest>
+
+  RegisterPromptResponse:
+    properties:
+      prompt:
+        type: RegisterPromptPrompt
+        docs: Information about the generated prompt
+      sandbox_snapshot:
+        type: RegisteredPromptSandboxSnapshot
+        docs: Information about the generated sandbox snapshot
+      sandbox:
+        type: RegisteredPromptSandbox
+        docs: Information about the generated sandbox
+      model_version:
+        type: RegisteredPromptModelVersion
+        docs: Information about the generated model version
+      deployment:
+        type: RegisteredPromptDeployment
+        docs: Information about the generated deployment
+
+  RegisteredPromptDeployment:
+    properties:
+      id:
+        type: string
+        docs: The ID of the generated deployment.
+      name:
+        type: string
+        docs: A uniquely-identifying name for generated deployment.
+      label:
+        type: string
+        docs: A human-friendly label for the generated deployment.
+
+  RegisteredPromptInputVariableRequest:
+    properties:
+      key: string
+      id:
+        type: optional<string>
+      type:
+        type: optional<VellumVariableType>
+
+  RegisteredPromptModelVersion:
+    properties:
+      id:
+        type: string
+        docs: The ID of the generated model version.
+      label:
+        type: string
+        docs: A human-friendly label for the generated model version.
+
+  RegisteredPromptSandbox:
+    properties:
+      id:
+        type: string
+        docs: The ID of the generated sandbox.
+      label:
+        type: string
+        docs: A human-friendly label for the generated sandbox.
+
+  RegisteredPromptSandboxSnapshot:
+    properties:
+      id:
+        type: string
+        docs: The ID of the generated sandbox snapshot.
+
+  SandboxMetricInputParams:
+    properties:
+      params:
+        type: optional<EvaluationParams>
+
+  SandboxMetricInputParamsRequest:
+    properties:
+      params:
+        type: optional<EvaluationParamsRequest>
+
+  SandboxScenario:
+    properties:
+      label:
+        type: optional<string>
+      inputs:
+        docs: The inputs for the scenario
+        type: list<ScenarioInput>
+      id:
+        type: string
+        docs: The id of the scenario
+      metric_input_params:
+        type: SandboxMetricInputParams
+
+  ScenarioInput:
+    properties:
+      key: string
+      type:
+        type: optional<ScenarioInputTypeEnum>
+      value:
+        type: optional<string>
+      chat_history:
+        type: optional<list<ChatMessage>>
+
+  ScenarioInputRequest:
+    properties:
+      key: string
+      type:
+        type: optional<ScenarioInputTypeEnum>
+      value:
+        type: optional<string>
+      chat_history:
+        type: optional<list<ChatMessageRequest>>
+
+  ScenarioInputTypeEnum:
+    docs: |-
+      * `TEXT` - Text
+      * `CHAT_HISTORY` - Chat History
+    enum:
+      - name: TEXT
+        value: TEXT
+      - name: CHAT_HISTORY
+        value: CHAT_HISTORY
+
+  SearchErrorResponse:
+    properties:
+      detail:
+        type: string
+        docs: Details about why the request failed.
+
+  SearchFiltersRequest:
+    properties:
+      external_ids:
+        docs: The document external IDs to filter by
+        type: optional<list<string>>
+      metadata:
+        docs: The metadata filters to apply to the search
+        type: optional<MetadataFilterConfigRequest>
+
+  SearchNodeResult:
+    properties:
+      data:
+        type: SearchNodeResultData
+
+  SearchNodeResultData:
+    properties:
+      results_output_id: string
+      results:
+        docs: >-
+          The results of the search. Each result represents a chunk that matches
+          the search query.
+        type: list<SearchResult>
+      text_output_id: string
+      text:
+        type: optional<string>
+
+  SearchRequestOptionsRequest:
+    properties:
+      limit:
+        docs: The maximum number of results to return.
+        type: optional<integer>
+      weights:
+        docs: The weights to use for the search. Must add up to 1.0.
+        type: optional<SearchWeightsRequest>
+      result_merging:
+        docs: The configuration for merging results.
+        type: optional<SearchResultMergingRequest>
+      filters:
+        docs: The filters to apply to the search.
+        type: optional<SearchFiltersRequest>
+
+  SearchResponse:
+    properties:
+      results:
+        docs: >-
+          The results of the search. Each result represents a chunk that matches
+          the search query.
+        type: list<SearchResult>
+
+  SearchResult:
+    properties:
+      text:
+        type: string
+        docs: The text of the chunk that matched the search query.
+      score:
+        type: double
+        docs: A score representing how well the chunk matches the search query.
+      keywords:
+        type: list<string>
+      document:
+        type: SearchResultDocument
+        docs: The document that contains the chunk that matched the search query.
+
+  SearchResultDocument:
+    properties:
+      id:
+        type: string
+        docs: The ID of the document.
+      label:
+        type: string
+        docs: The human-readable name for the document.
+      external_id:
+        docs: >-
+          The unique ID of the document as represented in an external system and
+          specified when it was originally uploaded.
+        type: optional<string>
+      metadata:
+        docs: >-
+          A previously supplied JSON object containing metadata that can be
+          filtered on when searching.
+        type: optional<map<string, unknown>>
+
+  SearchResultMergingRequest:
+    properties:
+      enabled:
+        docs: Whether to enable merging results
+        type: optional<boolean>
+
+  SearchWeightsRequest:
+    properties:
+      semantic_similarity:
+        docs: The relative weight to give to semantic similarity
+        type: optional<double>
+      keywords:
+        docs: The relative weight to give to keywords
+        type: optional<double>
+
+  SlimDocument:
+    properties:
+      id:
+        type: string
+        docs: Vellum-generated ID that uniquely identifies this document.
+      external_id:
+        docs: >-
+          The external ID that was originally provided when uploading the
+          document.
+        type: optional<string>
+      last_uploaded_at:
+        type: datetime
+        docs: >-
+          A timestamp representing when this document was most recently
+          uploaded.
+      label:
+        type: string
+        docs: Human-friendly name for this document.
+      processing_state:
+        docs: >-
+          An enum value representing where this document is along its processing
+          lifecycle. Note that this is different than its indexing lifecycle.
+          * `QUEUED` - Queued
+          * `PROCESSING` - Processing
+          * `PROCESSED` - Processed
+          * `FAILED` - Failed
+        type: optional<ProcessingStateEnum>
+      processing_failure_reason:
+        docs: >-
+          An enum value representing why the document could not be processed. Is
+          null unless processing_state is FAILED.
+          * `EXCEEDED_CHARACTER_LIMIT` - Exceeded Character Limit
+          * `INVALID_FILE` - Invalid File
+        type: optional<ProcessingFailureReasonEnum>
+      status:
+        docs: |-
+          The document's current status.
+          * `ACTIVE` - Active
+        type: optional<DocumentStatus>
+      keywords:
+        docs: >-
+          A list of keywords associated with this document. Originally provided
+          when uploading the document.
+        type: optional<list<string>>
+      metadata:
+        docs: >-
+          A previously supplied JSON object containing metadata that can be
+          filtered on when searching.
+        type: optional<map<string, unknown>>
+      document_to_document_indexes:
+        type: list<DocumentDocumentToDocumentIndex>
+
+  SubmitCompletionActualRequest:
+    properties:
+      id:
+        docs: >-
+          The Vellum-generated ID of a previously generated completion. Must
+          provide either this or external_id.
+        type: optional<string>
+      external_id:
+        docs: >-
+          The external ID that was originally provided when generating the
+          completion that you'd now like to submit actuals for. Must provide
+          either this or id.
+        type: optional<string>
+      text:
+        docs: Text representing what the completion _should_ have been.
+        type: optional<string>
+      quality:
+        docs: >-
+          A number between 0 and 1 representing the quality of the completion. 0
+          is the worst, 1 is the best.
+        type: optional<double>
+      timestamp:
+        docs: >-
+          Optionally provide the timestamp representing when this feedback was
+          collected. Used for reporting purposes.
+        type: optional<datetime>
+
+  SubmitCompletionActualsErrorResponse:
+    properties:
+      detail: string
+
+  SubmitWorkflowExecutionActualRequest:
+    discriminant: output_type
+    base-properties: {}
+    union:
+      STRING:
+        type: WorkflowExecutionActualStringRequest
+      JSON:
+        type: WorkflowExecutionActualJsonRequest
+      CHAT_HISTORY:
+        type: WorkflowExecutionActualChatHistoryRequest
+
+  TemplatingNodeChatHistoryResult:
+    properties:
+      id: string
+      value:
+        type: optional<list<ChatMessage>>
+
+  TemplatingNodeErrorResult:
+    properties:
+      id: string
+      value:
+        type: optional<VellumError>
+
+  TemplatingNodeJsonResult:
+    properties:
+      id: string
+      value:
+        type: optional<map<string, unknown>>
+
+  TemplatingNodeNumberResult:
+    properties:
+      id: string
+      value:
+        type: optional<integer>
+
+  TemplatingNodeResult:
+    properties:
+      data:
+        type: TemplatingNodeResultData
+
+  TemplatingNodeResultData:
+    properties:
+      output:
+        type: TemplatingNodeResultOutput
+
+  TemplatingNodeResultOutput:
+    discriminant: type
+    base-properties: {}
+    union:
+      STRING:
+        type: TemplatingNodeStringResult
+      NUMBER:
+        type: TemplatingNodeNumberResult
+      JSON:
+        type: TemplatingNodeJsonResult
+      CHAT_HISTORY:
+        type: TemplatingNodeChatHistoryResult
+      SEARCH_RESULTS:
+        type: TemplatingNodeSearchResultsResult
+      ERROR:
+        type: TemplatingNodeErrorResult
+
+  TemplatingNodeSearchResultsResult:
+    properties:
+      id: string
+      value:
+        type: optional<list<SearchResult>>
+
+  TemplatingNodeStringResult:
+    properties:
+      id: string
+      value:
+        type: optional<string>
+
+  TerminalNodeChatHistoryResult:
+    properties:
+      id:
+        type: optional<string>
+      name:
+        type: string
+        docs: The unique name given to the terminal node that produced this output.
+      value:
+        type: optional<list<ChatMessage>>
+
+  TerminalNodeErrorResult:
+    properties:
+      id:
+        type: optional<string>
+      name:
+        type: string
+        docs: The unique name given to the terminal node that produced this output.
+      value:
+        type: optional<VellumError>
+
+  TerminalNodeJsonResult:
+    properties:
+      id:
+        type: optional<string>
+      name:
+        type: string
+        docs: The unique name given to the terminal node that produced this output.
+      value:
+        type: optional<map<string, unknown>>
+
+  TerminalNodeNumberResult:
+    properties:
+      id:
+        type: optional<string>
+      name:
+        type: string
+        docs: The unique name given to the terminal node that produced this output.
+      value:
+        type: optional<integer>
+
+  TerminalNodeResult:
+    properties:
+      data:
+        type: TerminalNodeResultData
+
+  TerminalNodeResultData:
+    properties:
+      output:
+        type: TerminalNodeResultOutput
+
+  TerminalNodeResultOutput:
+    discriminant: type
+    base-properties: {}
+    union:
+      STRING:
+        type: TerminalNodeStringResult
+      NUMBER:
+        type: TerminalNodeNumberResult
+      JSON:
+        type: TerminalNodeJsonResult
+      CHAT_HISTORY:
+        type: TerminalNodeChatHistoryResult
+      SEARCH_RESULTS:
+        type: TerminalNodeSearchResultsResult
+      ERROR:
+        type: TerminalNodeErrorResult
+
+  TerminalNodeSearchResultsResult:
+    properties:
+      id:
+        type: optional<string>
+      name:
+        type: string
+        docs: The unique name given to the terminal node that produced this output.
+      value:
+        type: optional<list<SearchResult>>
+
+  TerminalNodeStringResult:
+    properties:
+      id:
+        type: optional<string>
+      name:
+        type: string
+        docs: The unique name given to the terminal node that produced this output.
+      value:
+        type: optional<string>
+
+  TestSuiteTestCase:
+    properties:
+      test_case_id:
+        docs: >-
+          The id of the test case to update. If none is provided, an id will be
+          generated and a new test case will be appended.
+        type: optional<string>
+      label:
+        docs: A human-friendly label for the test case.
+        type: optional<string>
+      input_values:
+        docs: Key/value pairs for each input variable that the Test Suite expects.
+        type: map<string, unknown>
+      evaluation_params:
+        type: EvaluationParams
+        docs: >-
+          Parameters to use when evaluating the test case, specific to the test
+          suite's evaluation metric.
+
+  UploadDocumentErrorResponse:
+    properties:
+      detail: string
+
+  UploadDocumentResponse:
+    properties:
+      document_id:
+        type: string
+        docs: The ID of the newly created document.
+
+  VellumError:
+    properties:
+      message: string
+      code:
+        type: VellumErrorCodeEnum
+
+  VellumErrorCodeEnum:
+    docs: |-
+      * `INVALID_REQUEST` - INVALID_REQUEST
+      * `PROVIDER_ERROR` - PROVIDER_ERROR
+      * `INTERNAL_SERVER_ERROR` - INTERNAL_SERVER_ERROR
+    enum:
+      - name: INVALID_REQUEST
+        value: INVALID_REQUEST
+      - name: PROVIDER_ERROR
+        value: PROVIDER_ERROR
+      - name: INTERNAL_SERVER_ERROR
+        value: INTERNAL_SERVER_ERROR
+
+  VellumVariable:
+    properties:
+      id: string
+      key: string
+      type:
+        type: VellumVariableType
+
+  VellumVariableType:
+    docs: |-
+      * `STRING` - STRING
+      * `NUMBER` - NUMBER
+      * `JSON` - JSON
+      * `CHAT_HISTORY` - CHAT_HISTORY
+      * `SEARCH_RESULTS` - SEARCH_RESULTS
+      * `ERROR` - ERROR
+    enum:
+      - name: STRING
+        value: STRING
+      - name: NUMBER
+        value: NUMBER
+      - name: JSON
+        value: JSON
+      - name: CHAT_HISTORY
+        value: CHAT_HISTORY
+      - name: SEARCH_RESULTS
+        value: SEARCH_RESULTS
+      - name: ERROR
+        value: ERROR
+
+  WorkflowEventError:
+    properties:
+      message: string
+      code:
+        type: WorkflowExecutionEventErrorCode
+
+  WorkflowExecutionActualChatHistoryRequest:
+    properties:
+      output_id:
+        docs: >-
+          The Vellum-generated ID of a workflow output. Must provide either this
+          or output_key. output_key is typically preferred.
+        type: optional<string>
+      output_key:
+        docs: >-
+          The user-defined name of a workflow output. Must provide either this
+          or output_id. Should correspond to the `Name` specified in a Final
+          Output Node. Generally preferred over output_id.
+        type: optional<string>
+      quality:
+        docs: >-
+          Optionally provide a decimal number between 0.0 and 1.0 (inclusive)
+          representing the quality of the output. 0 is the worst, 1 is the best.
+        type: optional<double>
+      timestamp:
+        docs: >-
+          Optionally provide the timestamp representing when this feedback was
+          collected. Used for reporting purposes.
+        type: optional<double>
+      desired_output_value:
+        docs: Optionally provide the value that the output ideally should have been.
+        type: optional<list<ChatMessageRequest>>
+
+  WorkflowExecutionActualJsonRequest:
+    properties:
+      output_id:
+        docs: >-
+          The Vellum-generated ID of a workflow output. Must provide either this
+          or output_key. output_key is typically preferred.
+        type: optional<string>
+      output_key:
+        docs: >-
+          The user-defined name of a workflow output. Must provide either this
+          or output_id. Should correspond to the `Name` specified in a Final
+          Output Node. Generally preferred over output_id.
+        type: optional<string>
+      quality:
+        docs: >-
+          Optionally provide a decimal number between 0.0 and 1.0 (inclusive)
+          representing the quality of the output. 0 is the worst, 1 is the best.
+        type: optional<double>
+      timestamp:
+        docs: >-
+          Optionally provide the timestamp representing when this feedback was
+          collected. Used for reporting purposes.
+        type: optional<double>
+      desired_output_value:
+        docs: Optionally provide the value that the output ideally should have been.
+        type: optional<map<string, unknown>>
+
+  WorkflowExecutionActualStringRequest:
+    properties:
+      output_id:
+        docs: >-
+          The Vellum-generated ID of a workflow output. Must provide either this
+          or output_key. output_key is typically preferred.
+        type: optional<string>
+      output_key:
+        docs: >-
+          The user-defined name of a workflow output. Must provide either this
+          or output_id. Should correspond to the `Name` specified in a Final
+          Output Node. Generally preferred over output_id.
+        type: optional<string>
+      quality:
+        docs: >-
+          Optionally provide a decimal number between 0.0 and 1.0 (inclusive)
+          representing the quality of the output. 0 is the worst, 1 is the best.
+        type: optional<double>
+      timestamp:
+        docs: >-
+          Optionally provide the timestamp representing when this feedback was
+          collected. Used for reporting purposes.
+        type: optional<double>
+      desired_output_value:
+        docs: Optionally provide the value that the output ideally should have been.
+        type: optional<string>
+
+  WorkflowExecutionEventErrorCode:
+    docs: >-
+      * `WORKFLOW_INITIALIZATION` - WORKFLOW_INITIALIZATION
+      * `NODE_EXECUTION_COUNT_LIMIT_REACHED` -
+      NODE_EXECUTION_COUNT_LIMIT_REACHED
+      * `INTERNAL_SERVER_ERROR` - INTERNAL_SERVER_ERROR
+      * `NODE_EXECUTION` - NODE_EXECUTION
+      * `LLM_PROVIDER` - LLM_PROVIDER
+      * `INVALID_TEMPLATE` - INVALID_TEMPLATE
+    enum:
+      - name: WORKFLOW_INITIALIZATION
+        value: WORKFLOW_INITIALIZATION
+      - name: NODE_EXECUTION_COUNT_LIMIT_REACHED
+        value: NODE_EXECUTION_COUNT_LIMIT_REACHED
+      - name: INTERNAL_SERVER_ERROR
+        value: INTERNAL_SERVER_ERROR
+      - name: NODE_EXECUTION
+        value: NODE_EXECUTION
+      - name: LLM_PROVIDER
+        value: LLM_PROVIDER
+      - name: INVALID_TEMPLATE
+        value: INVALID_TEMPLATE
+
+  WorkflowExecutionEventType:
+    docs: |-
+      * `NODE` - Node
+      * `WORKFLOW` - Workflow
+    enum:
+      - name: NODE
+        value: NODE
+      - name: WORKFLOW
+        value: WORKFLOW
+
+  WorkflowExecutionNodeResultEvent:
+    properties:
+      execution_id: string
+      run_id:
+        type: optional<string>
+      external_id:
+        type: optional<string>
+      data:
+        type: WorkflowNodeResultEvent
+
+  WorkflowExecutionWorkflowResultEvent:
+    properties:
+      execution_id: string
+      run_id:
+        type: optional<string>
+      external_id:
+        type: optional<string>
+      data:
+        type: WorkflowResultEvent
+
+  WorkflowNodeResultData:
+    discriminant: type
+    base-properties: {}
+    union:
+      PROMPT:
+        type: PromptNodeResult
+      SEARCH:
+        type: SearchNodeResult
+      TEMPLATING:
+        type: TemplatingNodeResult
+      CONDITIONAL:
+        type: ConditionalNodeResult
+      API:
+        type: ApiNodeResult
+      TERMINAL:
+        type: TerminalNodeResult
+
+  WorkflowNodeResultEvent:
+    properties:
+      id: string
+      node_id: string
+      node_result_id: string
+      state:
+        type: WorkflowNodeResultEventState
+      ts:
+        type: optional<datetime>
+      data:
+        type: optional<WorkflowNodeResultData>
+      error:
+        type: optional<WorkflowEventError>
+      input_values:
+        type: optional<list<NodeInputVariableCompiledValue>>
+
+  WorkflowNodeResultEventState:
+    docs: |-
+      * `INITIATED` - INITIATED
+      * `STREAMING` - STREAMING
+      * `FULFILLED` - FULFILLED
+      * `REJECTED` - REJECTED
+    enum:
+      - name: INITIATED
+        value: INITIATED
+      - name: STREAMING
+        value: STREAMING
+      - name: FULFILLED
+        value: FULFILLED
+      - name: REJECTED
+        value: REJECTED
+
+  WorkflowRequestChatHistoryInputRequest:
+    properties:
+      name:
+        type: string
+        docs: The variable's name, as defined in the Workflow.
+      value:
+        type: list<ChatMessageRequest>
+
+  WorkflowRequestInputRequest:
+    discriminant: type
+    base-properties: {}
+    union:
+      STRING:
+        type: WorkflowRequestStringInputRequest
+      JSON:
+        type: WorkflowRequestJsonInputRequest
+      CHAT_HISTORY:
+        type: WorkflowRequestChatHistoryInputRequest
+
+  WorkflowRequestJsonInputRequest:
+    properties:
+      name:
+        type: string
+        docs: The variable's name, as defined in the Workflow.
+      value:
+        type: map<string, unknown>
+
+  WorkflowRequestStringInputRequest:
+    properties:
+      name:
+        type: string
+        docs: The variable's name, as defined in the Workflow.
+      value: string
+
+  WorkflowResultEvent:
+    properties:
+      id: string
+      state:
+        type: WorkflowNodeResultEventState
+      ts: datetime
+      output:
+        type: optional<WorkflowResultEventOutputData>
+      error:
+        type: optional<WorkflowEventError>
+
+  WorkflowResultEventOutputData:
+    discriminant: type
+    base-properties: {}
+    union:
+      STRING:
+        type: WorkflowResultEventOutputDataString
+      NUMBER:
+        type: WorkflowResultEventOutputDataNumber
+      JSON:
+        type: WorkflowResultEventOutputDataJson
+      CHAT_HISTORY:
+        type: WorkflowResultEventOutputDataChatHistory
+      SEARCH_RESULTS:
+        type: WorkflowResultEventOutputDataSearchResults
+      ERROR:
+        type: WorkflowResultEventOutputDataError
+
+  WorkflowResultEventOutputDataChatHistory:
+    properties:
+      id:
+        type: optional<string>
+      name: string
+      state:
+        type: WorkflowNodeResultEventState
+      node_id: string
+      delta:
+        docs: >-
+          The newly output string value. Only relevant for string outputs with a
+          state of STREAMING.
+        type: optional<string>
+      value:
+        type: optional<list<ChatMessage>>
+
+  WorkflowResultEventOutputDataError:
+    properties:
+      id:
+        type: optional<string>
+      name: string
+      state:
+        type: WorkflowNodeResultEventState
+      node_id: string
+      delta:
+        docs: >-
+          The newly output string value. Only relevant for string outputs with a
+          state of STREAMING.
+        type: optional<string>
+      value:
+        type: optional<VellumError>
+
+  WorkflowResultEventOutputDataJson:
+    properties:
+      id:
+        type: optional<string>
+      name: string
+      state:
+        type: WorkflowNodeResultEventState
+      node_id: string
+      delta:
+        docs: >-
+          The newly output string value. Only relevant for string outputs with a
+          state of STREAMING.
+        type: optional<string>
+      value:
+        type: optional<map<string, unknown>>
+
+  WorkflowResultEventOutputDataNumber:
+    properties:
+      id:
+        type: optional<string>
+      name: string
+      state:
+        type: WorkflowNodeResultEventState
+      node_id: string
+      delta:
+        docs: >-
+          The newly output string value. Only relevant for string outputs with a
+          state of STREAMING.
+        type: optional<string>
+      value:
+        type: optional<integer>
+
+  WorkflowResultEventOutputDataSearchResults:
+    properties:
+      id:
+        type: optional<string>
+      name: string
+      state:
+        type: WorkflowNodeResultEventState
+      node_id: string
+      delta:
+        docs: >-
+          The newly output string value. Only relevant for string outputs with a
+          state of STREAMING.
+        type: optional<string>
+      value:
+        type: optional<list<SearchResult>>
+
+  WorkflowResultEventOutputDataString:
+    properties:
+      id:
+        type: optional<string>
+      name: string
+      state:
+        type: WorkflowNodeResultEventState
+      node_id: string
+      delta:
+        docs: >-
+          The newly output string value, meant to be concatenated with all
+          previous. Will be non-null for events of state STREAMING.
+        type: optional<string>
+      value:
+        docs: >-
+          The entire string value. Will be non-null for events of state
+          FULFILLED.
+        type: optional<string>
+
+  WorkflowStreamEvent:
+    discriminant: type
+    base-properties: {}
+    union:
+      WORKFLOW:
+        type: WorkflowExecutionWorkflowResultEvent
+      NODE:
+        type: WorkflowExecutionNodeResultEvent
+
+service:
+  auth: false
+  base-path: ""
+  endpoints:
+    execute-workflow:
+      path: /v1/execute-workflow
+      method: POST
+      auth: true
+      docs: Executes a deployed Workflow and streams back its results.
+      request:
+        name: ExecuteWorkflowRequest
+        body:
+          properties:
+            workflow_deployment_id:
+              docs: >-
+                The ID of the Workflow Deployment. Must provide either this or
+                workflow_deployment_name.
+              type: optional<string>
+            workflow_deployment_name:
+              docs: >-
+                The name of the Workflow Deployment. Must provide either this or
+                workflow_deployment_id.
+              type: optional<string>
+            release_tag:
+              docs: >-
+                Optionally specify a release tag if you want to pin to a
+                specific release of the Workflow Deployment
+              type: optional<string>
+            inputs:
+              type: list<WorkflowRequestInputRequest>
+            external_id:
+              docs: Optionally include a unique identifier for tracking purposes.
+              type: optional<string>
+            event_types:
+              docs: >-
+                Optionally specify which events you want to receive. Defaults to
+                only WORKFLOW events. Note that the schema of non-WORKFLOW
+                events is unstable and should be used with caution.
+              type: optional<list<WorkflowExecutionEventType>>
+      response:
+        docs: ""
+        type: WorkflowStreamEvent
+      url: Predict
+      errors:
+        - BadRequestError
+        - NotFoundError
+        - InternalServerError
+
+    # TODO: Temporarily commented out to enable Go SDK generation.
+    #execute-workflow-stream:
+      #path: /v1/execute-workflow-stream
+      #method: POST
+      #auth: true
+      #docs: Executes a deployed Workflow and streams back its results.
+      #request:
+        #name: ExecuteWorkflowStreamRequest
+        #body:
+          #properties:
+            #workflow_deployment_id:
+              #docs: >-
+                #The ID of the Workflow Deployment. Must provide either this or
+                #workflow_deployment_name.
+              #type: optional<string>
+            #workflow_deployment_name:
+              #docs: >-
+                #The name of the Workflow Deployment. Must provide either this or
+                #workflow_deployment_id.
+              #type: optional<string>
+            #release_tag:
+              #docs: >-
+                #Optionally specify a release tag if you want to pin to a
+                #specific release of the Workflow Deployment
+              #type: optional<string>
+            #inputs:
+              #type: list<WorkflowRequestInputRequest>
+            #external_id:
+              #docs: Optionally include a unique identifier for tracking purposes.
+              #type: optional<string>
+            #event_types:
+              #docs: >-
+                #Optionally specify which events you want to receive. Defaults to
+                #only WORKFLOW events. Note that the schema of non-WORKFLOW
+                #events is unstable and should be used with caution.
+              #type: optional<list<WorkflowExecutionEventType>>
+      #response-stream:
+        #docs: ""
+        #type: WorkflowStreamEvent
+      #url: Predict
+      #errors:
+        #- BadRequestError
+        #- NotFoundError
+        #- InternalServerError
+
+    generate:
+      path: /v1/generate
+      method: POST
+      auth: true
+      docs: |-
+        Generate a completion using a previously defined deployment.
+        **Note:** Uses a base url of `https://predict.vellum.ai`.
+      request:
+        name: GenerateBodyRequest
+        body:
+          properties:
+            deployment_id:
+              docs: >-
+                The ID of the deployment. Must provide either this or
+                deployment_name.
+              type: optional<string>
+            deployment_name:
+              docs: >-
+                The name of the deployment. Must provide either this or
+                deployment_id.
+              type: optional<string>
+            requests:
+              docs: >-
+                The generation request to make. Bulk requests are no longer
+                supported, this field must be an array of length 1.
+              type: list<GenerateRequest>
+            options:
+              docs: >-
+                Additional configuration that can be used to control what's
+                included in the response.
+              type: optional<GenerateOptionsRequest>
+      response:
+        docs: ""
+        type: GenerateResponse
+      url: Predict
+      availability: generally-available
+      errors:
+        - BadRequestError
+        - ForbiddenError
+        - NotFoundError
+        - InternalServerError
+
+    #generate-stream:
+      #path: /v1/generate-stream
+      #method: POST
+      #auth: true
+      #docs: |-
+        #Generate a stream of completions using a previously defined deployment.
+        #**Note:** Uses a base url of `https://predict.vellum.ai`.
+      #request:
+        #name: GenerateStreamBodyRequest
+        #body:
+          #properties:
+            #deployment_id:
+              #docs: >-
+                #The ID of the deployment. Must provide either this or
+                #deployment_name.
+              #type: optional<string>
+            #deployment_name:
+              #docs: >-
+                #The name of the deployment. Must provide either this or
+                #deployment_id.
+              #type: optional<string>
+            #requests:
+              #docs: >-
+                #The generation request to make. Bulk requests are no longer
+                #supported, this field must be an array of length 1.
+              #type: list<GenerateRequest>
+            #options:
+              #docs: >-
+                #Additional configuration that can be used to control what's
+                #included in the response.
+              #type: optional<GenerateOptionsRequest>
+      #response-stream:
+        #docs: ""
+        #type: GenerateStreamResponse
+      #url: Predict
+      #availability: generally-available
+      #errors:
+        #- BadRequestError
+        #- ForbiddenError
+        #- NotFoundError
+        #- InternalServerError
+
+    search:
+      path: /v1/search
+      method: POST
+      auth: true
+      docs: |-
+        Perform a search against a document index.
+        **Note:** Uses a base url of `https://predict.vellum.ai`.
+      request:
+        name: SearchRequestBodyRequest
+        body:
+          properties:
+            index_id:
+              docs: >-
+                The ID of the index to search against. Must provide either this
+                or index_name.
+              type: optional<string>
+            index_name:
+              docs: >-
+                The name of the index to search against. Must provide either
+                this or index_id.
+              type: optional<string>
+            query:
+              type: string
+              docs: The query to search for.
+            options:
+              docs: Configuration options for the search.
+              type: optional<SearchRequestOptionsRequest>
+      response:
+        docs: ""
+        type: SearchResponse
+      url: Predict
+      availability: generally-available
+      errors:
+        - BadRequestError
+        - NotFoundError
+        - InternalServerError
+
+    submit-completion-actuals:
+      path: /v1/submit-completion-actuals
+      method: POST
+      auth: true
+      docs: >-
+        Used to submit feedback regarding the quality of previously generated
+        completions.
+        **Note:** Uses a base url of `https://predict.vellum.ai`.
+      request:
+        name: SubmitCompletionActualsRequest
+        body:
+          properties:
+            deployment_id:
+              docs: >-
+                The ID of the deployment. Must provide either this or
+                deployment_name.
+              type: optional<string>
+            deployment_name:
+              docs: >-
+                The name of the deployment. Must provide either this or
+                deployment_id.
+              type: optional<string>
+            actuals:
+              docs: >-
+                Feedback regarding the quality of previously generated
+                completions
+              type: list<SubmitCompletionActualRequest>
+      url: Predict
+      availability: generally-available
+      errors:
+        - BadRequestError
+        - NotFoundError
+        - InternalServerError
+
+    submit-workflow-execution-actuals:
+      path: /v1/submit-workflow-execution-actuals
+      method: POST
+      auth: true
+      docs: |2-
+            Used to submit feedback regarding the quality of previous workflow execution and its outputs.
+            **Note:** Uses a base url of `https://predict.vellum.ai`.
+      request:
+        name: SubmitWorkflowExecutionActualsRequest
+        body:
+          properties:
+            actuals:
+              docs: >-
+                Feedback regarding the quality of an output on a previously
+                executed workflow.
+              type: list<SubmitWorkflowExecutionActualRequest>
+            execution_id:
+              docs: >-
+                The Vellum-generated ID of a previously executed workflow. Must
+                provide either this or external_id.
+              type: optional<string>
+            external_id:
+              docs: >-
+                The external ID that was originally provided by when executing
+                the workflow, if applicable, that you'd now like to submit
+                actuals for. Must provide either this or execution_id.
+              type: optional<string>
+      url: Predict
+      availability: generally-available
+      errors: []
+
+errors:
+  BadRequestError:
+    status-code: 400
+    type: unknown
+
+  ForbiddenError:
+    status-code: 403
+    type: GenerateErrorResponse
+
+  NotFoundError:
+    status-code: 404
+    type: unknown
+
+  ConflictError:
+    status-code: 409
+    type: RegisterPromptErrorResponse
+
+  InternalServerError:
+    status-code: 500
+    type: unknown

@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  root: __package__.yml
+
+service:
+  auth: false
+  base-path: ""
+  endpoints:
+    register_prompt:
+      path: /v1/registered-prompts/register
+      method: POST
+      auth: true
+      docs: >-
+        Registers a prompt within Vellum and creates associated Vellum entities.
+        Intended to be used by integration
+        partners, not directly by Vellum users.
+        Under the hood, this endpoint creates a new sandbox, a new model
+        version, and a new deployment.
+      request:
+        name: RegisterPromptRequestRequest
+        body:
+          properties:
+            label:
+              type: string
+              docs: >-
+                A human-friendly label for corresponding entities created in
+                Vellum.
+            name:
+              type: string
+              docs: >-
+                A uniquely-identifying name for corresponding entities created
+                in Vellum.
+            prompt:
+              type: root.RegisterPromptPromptInfoRequest
+              docs: Information about how to execute the prompt template.
+            provider:
+              type: root.ProviderEnum
+              docs: |-
+                The initial LLM provider to use for this prompt
+                * `ANTHROPIC` - Anthropic
+                * `COHERE` - Cohere
+                * `GOOGLE` - Google
+                * `HOSTED` - Hosted
+                * `MOSAICML` - MosaicML
+                * `OPENAI` - OpenAI
+                * `HUGGINGFACE` - HuggingFace
+                * `MYSTIC` - Mystic
+                * `PYQ` - Pyq
+            model:
+              type: string
+              docs: The initial model to use for this prompt
+            parameters:
+              type: root.RegisterPromptModelParametersRequest
+              docs: The initial model parameters to use for  this prompt
+            meta:
+              docs: >-
+                Optionally include additional metadata to store along with the
+                prompt.
+              type: optional<map<string, unknown>>
+      response:
+        docs: ""
+        type: root.RegisterPromptResponse
+      url: Default
+      availability: pre-release
+      errors:
+        - root.BadRequestError
+        - root.NotFoundError
+        - root.ConflictError

@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  root: __package__.yml
+
+service:
+  auth: false
+  base-path: ""
+  endpoints:
+    create:
+      path: /v1/document-indexes
+      method: POST
+      auth: true
+      docs: Creates a new document index.
+      request:
+        name: DocumentIndexCreateRequest
+        body:
+          properties:
+            label:
+              type: string
+              docs: A human-readable label for the document index
+            name:
+              type: string
+              docs: A name that uniquely identifies this index within its workspace
+            status:
+              docs: |-
+                The current status of the document index
+                * `ACTIVE` - Active
+                * `ARCHIVED` - Archived
+              type: optional<root.DocumentIndexStatus>
+            environment:
+              docs: |-
+                The environment this document index is used in
+                * `DEVELOPMENT` - Development
+                * `STAGING` - Staging
+                * `PRODUCTION` - Production
+              type: optional<root.EnvironmentEnum>
+            indexing_config:
+              docs: Configuration representing how documents should be indexed
+              type: map<string, unknown>
+            copy_documents_from_index_id:
+              docs: >-
+                Optionally specify the id of a document index from which you'd
+                like to copy and re-index its documents into this newly created
+                index
+              type: optional<string>
+      response:
+        docs: ""
+        type: root.DocumentIndexRead
+      url: Default
+      availability: pre-release
+      errors: []
+
+    retrieve:
+      path: /v1/document-indexes/{id}
+      method: GET
+      auth: true
+      docs: Used to retrieve a Document Index given its ID or name.
+      path-parameters:
+        id:
+          docs: Either the Document Index's ID or its unique name
+          type: string
+      response:
+        docs: ""
+        type: root.DocumentIndexRead
+      url: Default
+      availability: pre-release
+      errors: []

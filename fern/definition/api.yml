@@ -1,0 +1,19 @@
+imports:
+  root: __package__.yml
+name: api
+display-name: Vellum Client API
+error-discrimination:
+  strategy: status-code
+auth: apiKeyAuth
+auth-schemes:
+  apiKeyAuth:
+    header: X_API_KEY
+    name: apiKey
+    type: string
+default-environment: Production
+environments:
+  Production:
+    urls:
+      Default: https://api.vellum.ai
+      Predict: https://predict.vellum.ai
+      Documents: https://documents.vellum.ai

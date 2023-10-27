@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  root: __package__.yml
+
+service:
+  auth: false
+  base-path: ""
+  endpoints:
+    upsert_sandbox_scenario:
+      path: /v1/sandboxes/{id}/scenarios
+      method: POST
+      auth: true
+      docs: >-
+        Upserts a new scenario for a sandbox, keying off of the optionally
+        provided scenario id.
+        If an id is provided and has a match, the scenario will be updated. If
+        no id is provided or no match
+        is found, a new scenario will be appended to the end.
+        Note that a full replacement of the scenario is performed, so any fields
+        not provided will be removed
+        or overwritten with default values.
+      path-parameters:
+        id:
+          docs: A UUID string identifying this sandbox.
+          type: string
+      request:
+        name: UpsertSandboxScenarioRequestRequest
+        body:
+          properties:
+            label:
+              type: optional<string>
+            inputs:
+              docs: The inputs for the scenario
+              type: list<root.ScenarioInputRequest>
+            scenario_id:
+              docs: >-
+                The id of the scenario to update. If none is provided, an id
+                will be generated and a new scenario will be appended.
+              type: optional<string>
+            metric_input_params:
+              type: optional<root.SandboxMetricInputParamsRequest>
+      response:
+        docs: ""
+        type: root.SandboxScenario
+      url: Default
+      availability: pre-release
+      errors: []
+
+    delete_sandbox_scenario:
+      path: /v1/sandboxes/{id}/scenarios/{scenario_id}
+      method: DELETE
+      auth: true
+      docs: >-
+        Deletes an existing scenario from a sandbox, keying off of the provided
+        scenario id.
+      path-parameters:
+        id:
+          docs: A UUID string identifying this sandbox.
+          type: string
+        scenario_id:
+          docs: An id identifying the scenario that you'd like to delete
+          type: string
+      url: Default
+      availability: pre-release
+      errors: []

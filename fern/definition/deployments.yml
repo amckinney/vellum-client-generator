@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  root: __package__.yml
+
+service:
+  auth: false
+  base-path: ""
+  endpoints:
+    retrieve:
+      path: /v1/deployments/{id}
+      method: GET
+      auth: true
+      docs: Used to retrieve a deployment given its ID or name.
+      path-parameters:
+        id:
+          docs: Either the Deployment's ID or its unique name
+          type: string
+      response:
+        docs: ""
+        type: root.DeploymentRead
+      url: Default
+      availability: pre-release
+      errors: []
