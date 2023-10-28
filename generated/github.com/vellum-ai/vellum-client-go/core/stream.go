@@ -3,7 +3,6 @@ package core
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 )
@@ -13,7 +12,7 @@ import (
 // Python: https://github.com/vellum-ai/vellum-client-python/blob/1e577a183596da801faa1645de5b9ffc59da43ab/src/vellum/client.py#L111C40-L111C50
 // Node: https://github.com/vellum-ai/vellum-client-node/blob/b05dc4c48c8ceb5dd117243d3a0dc554866cbb90/src/core/streaming-fetcher/StreamingFetcher.ts#L62
 type Stream[T any] struct {
-	reader io.Reader
+	reader *bufio.Reader
 	closer io.Closer
 }
 
@@ -26,13 +25,15 @@ func NewStream[T any](response *http.Response) *Stream[T] {
 }
 
 func (s Stream[T]) Recv() (T, error) {
-	// TODO: Parse the newline delimited lines until we hit the point
-	// at which we need to decode the value.
-	var message T
-	if err := json.Unmarshal(nil /* TODO: This should be a formatted reader */, &message); err != nil {
-		return message, err
+	var value T
+	line, err := s.reader.ReadBytes('\n')
+	if err != nil {
+		return value, err
 	}
-	return message, errors.New("unimplemented")
+	if err := json.Unmarshal(line, &value); err != nil {
+		return value, err
+	}
+	return value, nil
 }
 
 func (s Stream[T]) Close() error {
