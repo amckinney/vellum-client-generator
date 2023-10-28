@@ -157,6 +157,73 @@ func DoRequest(
 	return nil
 }
 
+// DoStreamRequest issues a JSON request to the given url, and returns a Stream handle
+// for the caller to read the response messages from.
+func DoStreamRequest[T any](
+	ctx context.Context,
+	client HTTPClient,
+	url string,
+	method string,
+	request interface{},
+	response T,
+	endpointHeaders http.Header,
+	errorDecoder ErrorDecoder,
+) (*Stream[T], error) {
+	var requestBody io.Reader
+	if request != nil {
+		if body, ok := request.(io.Reader); ok {
+			requestBody = body
+		} else {
+			requestBytes, err := json.Marshal(request)
+			if err != nil {
+				return nil, err
+			}
+			requestBody = bytes.NewReader(requestBytes)
+		}
+	}
+
+	req, err := newRequest(ctx, url, method, endpointHeaders, requestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	// If the call has been cancelled, don't issue the request.
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		defer resp.Body.Close()
+		if errorDecoder != nil {
+			// This endpoint has custom errors, so we'll
+			// attempt to unmarshal the error into a structured
+			// type based on the status code.
+			return nil, errorDecoder(resp.StatusCode, resp.Body)
+		}
+		// This endpoint doesn't have any custom error
+		// types, so we just read the body as-is, and
+		// put it into a normal error.
+		bytes, err := io.ReadAll(resp.Body)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if err == io.EOF {
+			// The error didn't have a response body,
+			// so all we can do is return an error
+			// with the status code.
+			return nil, NewAPIError(resp.StatusCode, nil)
+		}
+		return nil, NewAPIError(resp.StatusCode, errors.New(string(bytes)))
+	}
+
+	return NewStream[T](resp), nil
+}
+
 // newRequest returns a new *http.Request with all of the fields
 // required to issue the call.
 func newRequest(

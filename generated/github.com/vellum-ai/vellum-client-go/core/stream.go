@@ -24,6 +24,8 @@ func NewStream[T any](response *http.Response) *Stream[T] {
 	}
 }
 
+// Recv reads a message from the stream, returning io.EOF when
+// all the messages have been read.
 func (s Stream[T]) Recv() (T, error) {
 	var value T
 	line, err := s.reader.ReadBytes('\n')
@@ -36,6 +38,7 @@ func (s Stream[T]) Recv() (T, error) {
 	return value, nil
 }
 
+// Close closes the Stream.
 func (s Stream[T]) Close() error {
 	return s.closer.Close()
 }

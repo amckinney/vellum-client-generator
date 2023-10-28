@@ -33,6 +33,17 @@ type GenerateBodyRequest struct {
 	Options *GenerateOptionsRequest `json:"options,omitempty"`
 }
 
+type GenerateStreamBodyRequest struct {
+	// The ID of the deployment. Must provide either this or deployment_name.
+	DeploymentId *string `json:"deployment_id,omitempty"`
+	// The name of the deployment. Must provide either this or deployment_id.
+	DeploymentName *string `json:"deployment_name,omitempty"`
+	// The generation request to make. Bulk requests are no longer supported, this field must be an array of length 1.
+	Requests []*GenerateRequest `json:"requests,omitempty"`
+	// Additional configuration that can be used to control what's included in the response.
+	Options *GenerateOptionsRequest `json:"options,omitempty"`
+}
+
 type SearchRequestBodyRequest struct {
 	// The ID of the index to search against. Must provide either this or index_name.
 	IndexId *string `json:"index_id,omitempty"`
