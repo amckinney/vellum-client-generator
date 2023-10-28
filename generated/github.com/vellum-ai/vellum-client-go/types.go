@@ -22,6 +22,20 @@ type ExecuteWorkflowRequest struct {
 	EventTypes []WorkflowExecutionEventType `json:"event_types,omitempty"`
 }
 
+type ExecuteWorkflowStreamRequest struct {
+	// The ID of the Workflow Deployment. Must provide either this or workflow_deployment_name.
+	WorkflowDeploymentId *string `json:"workflow_deployment_id,omitempty"`
+	// The name of the Workflow Deployment. Must provide either this or workflow_deployment_id.
+	WorkflowDeploymentName *string `json:"workflow_deployment_name,omitempty"`
+	// Optionally specify a release tag if you want to pin to a specific release of the Workflow Deployment
+	ReleaseTag *string                        `json:"release_tag,omitempty"`
+	Inputs     []*WorkflowRequestInputRequest `json:"inputs,omitempty"`
+	// Optionally include a unique identifier for tracking purposes.
+	ExternalId *string `json:"external_id,omitempty"`
+	// Optionally specify which events you want to receive. Defaults to only WORKFLOW events. Note that the schema of non-WORKFLOW events is unstable and should be used with caution.
+	EventTypes []WorkflowExecutionEventType `json:"event_types,omitempty"`
+}
+
 type GenerateBodyRequest struct {
 	// The ID of the deployment. Must provide either this or deployment_name.
 	DeploymentId *string `json:"deployment_id,omitempty"`

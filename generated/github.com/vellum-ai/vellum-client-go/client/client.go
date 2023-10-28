@@ -112,6 +112,59 @@ func (c *Client) ExecuteWorkflow(ctx context.Context, request *vellumclientgo.Ex
 	return response, nil
 }
 
+func (c *Client) ExecuteWorkflowStream(ctx context.Context, request *vellumclientgo.ExecuteWorkflowStreamRequest) (*core.Stream[vellumclientgo.WorkflowStreamEvent], error) {
+	baseURL := "https://predict.vellum.ai"
+	if c.baseURL != "" {
+		baseURL = c.baseURL
+	}
+	endpointURL := baseURL + "/" + "v1/execute-workflow"
+
+	errorDecoder := func(statusCode int, body io.Reader) error {
+		raw, err := io.ReadAll(body)
+		if err != nil {
+			return err
+		}
+		apiError := core.NewAPIError(statusCode, errors.New(string(raw)))
+		decoder := json.NewDecoder(bytes.NewReader(raw))
+		switch statusCode {
+		case 400:
+			value := new(vellumclientgo.BadRequestError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 404:
+			value := new(vellumclientgo.NotFoundError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		case 500:
+			value := new(vellumclientgo.InternalServerError)
+			value.APIError = apiError
+			if err := decoder.Decode(value); err != nil {
+				return apiError
+			}
+			return value
+		}
+		return apiError
+	}
+
+	var response vellumclientgo.WorkflowStreamEvent
+	return core.DoStreamRequest(
+		ctx,
+		c.httpClient,
+		endpointURL,
+		http.MethodPost,
+		request,
+		response,
+		c.header,
+		errorDecoder,
+	)
+}
+
 // Generate a completion using a previously defined deployment.
 // **Note:** Uses a base url of `https://predict.vellum.ai`.
 func (c *Client) Generate(ctx context.Context, request *vellumclientgo.GenerateBodyRequest) (*vellumclientgo.GenerateResponse, error) {
