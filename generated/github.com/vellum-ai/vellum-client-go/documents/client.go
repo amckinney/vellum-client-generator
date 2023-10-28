@@ -8,12 +8,13 @@ import (
 	json "encoding/json"
 	errors "errors"
 	fmt "fmt"
-	vellumclientgo "github.com/vellum-ai/vellum-client-go"
-	core "github.com/vellum-ai/vellum-client-go/core"
 	io "io"
 	multipart "mime/multipart"
 	http "net/http"
 	url "net/url"
+
+	vellumclientgo "github.com/vellum-ai/vellum-client-go"
+	core "github.com/vellum-ai/vellum-client-go/core"
 )
 
 type Client struct {
@@ -183,8 +184,14 @@ func (c *Client) Upload(ctx context.Context, contents io.Reader, request *vellum
 	if _, err := io.Copy(contentsPart, contents); err != nil {
 		return nil, err
 	}
-	if request.AddToIndexNames != nil {
-		if err := writer.WriteField("add_to_index_names", fmt.Sprintf("%v", *request.AddToIndexNames)); err != nil {
+	// TODO: Manually edited; test that this works.
+	//
+	// We should also verify whether or not complex objects
+	// are supported here. If so, we'll probably need to
+	// independently serialize them as JSON before writing
+	// the field.
+	for _, value := range request.AddToIndexNames {
+		if err := writer.WriteField("add_to_index_names", fmt.Sprintf("%v", value)); err != nil {
 			return nil, err
 		}
 	}
@@ -196,8 +203,9 @@ func (c *Client) Upload(ctx context.Context, contents io.Reader, request *vellum
 	if err := writer.WriteField("label", fmt.Sprintf("%v", request.Label)); err != nil {
 		return nil, err
 	}
-	if request.Keywords != nil {
-		if err := writer.WriteField("keywords", fmt.Sprintf("%v", *request.Keywords)); err != nil {
+	// TODO: Manually edited; test that this works.
+	for _, value := range request.Keywords {
+		if err := writer.WriteField("keywords", fmt.Sprintf("%v", value)); err != nil {
 			return nil, err
 		}
 	}
